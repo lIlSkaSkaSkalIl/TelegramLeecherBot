@@ -1,35 +1,38 @@
-# 🤖 Telegram Uploader Bot — Versi 1.02,03
+# 🤖 Telegram Leecher Bot — Versi 1.02,04
 
-Bot ini dibuat menggunakan Python dan berjalan di Google Colab.  
-Fungsinya adalah untuk **mengunduh file dari direct download link (URL)** dan **mengunggahnya langsung ke Telegram**, baik sebagai file atau dokumen.
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lIlSkaSkaSkalIl/TelegramLeecherBot/blob/main/run_bot_colab.ipynb)
 
----
-
-## 🧠 Fitur Utama
-
-- 🔗 Terima link download langsung (http/https)
-- 📥 Unduh file dari internet
-- 📤 Upload otomatis ke obrolan Telegram pribadi
-- 📡 Bisa dijalankan langsung dari Google Colab
-- 🔐 Aman: API ID, HASH, dan BOT TOKEN dimasukkan lewat form input (tidak disimpan di kode)
-- 🧪 Fokus stabilitas (belum dimodularisasi — akan dilakukan di versi selanjutnya)
+Bot Telegram ini dirancang untuk menerima direct download link (seperti dari Google Drive, MediaFire, Zippyshare, dll), mengunduh file tersebut, dan kemudian mengunggahnya kembali ke Telegram — secara otomatis melalui Google Colab.
 
 ---
 
-## 🚀 Cara Menggunakan
+## 🔧 Fitur Utama
 
-### 📌 Persiapan
-1. Buat Bot Telegram dari [@BotFather](https://t.me/BotFather)
-2. Dapatkan:
-   - API ID & API HASH dari [my.telegram.org](https://my.telegram.org)
-   - BOT TOKEN dari BotFather
+- 🔗 Menerima link direct download
+- 📥 Mengunduh file dari internet
+- 📤 Mengunggah ulang file ke chat Telegram secara otomatis
+- 📲 Bisa dijalankan langsung dari **Google Colab** tanpa perlu VPS atau perangkat lokal
+- 🔐 Input token menggunakan form `getpass()` (tidak disimpan di file publik)
 
-### ▶️ Jalankan dari Google Colab
+---
 
-1. Buka file [`run_bot_colab.ipynb`](run_bot_colab.ipynb)
-2. Masukkan `API_ID`, `API_HASH`, dan `BOT_TOKEN` di form input
-3. Jalankan semua sel
-4. Bot akan aktif dan menunggu pesan link dari Telegram
+## 🚀 Cara Menjalankan
+
+### 1. Siapkan Bot Telegram
+- Buat bot baru melalui [@BotFather](https://t.me/BotFather)
+- Catat `BOT_TOKEN` yang diberikan
+
+### 2. Ambil API ID dan HASH
+- Kunjungi [my.telegram.org](https://my.telegram.org)
+- Login dan dapatkan `API_ID` dan `API_HASH`
+
+### 3. Jalankan Bot dari Colab
+- Klik tombol **"Open in Colab"** di atas
+- Masukkan:
+  - API ID
+  - API HASH
+  - BOT TOKEN
+- Jalankan semua sel
 
 ---
 
@@ -45,28 +48,24 @@ Telegram_Uploader_Bot/
 
 ---
 
-## 🛡️ Keamanan
+## 🔒 Keamanan
 
-- Tidak ada token atau API yang disimpan dalam file publik
-- Semua konfigurasi sensitif diinput manual saat runtime
-- Aman untuk diupload ke GitHub secara publik
+- Token bot dan API ID tidak disimpan di file
+- Semua data sensitif dimasukkan saat runtime lewat input form
+- Aman untuk digunakan di repo publik
 
 ---
 
 ## 📌 Versi Saat Ini
 
-> Versi: **v1.02,03**  
+> Versi: **v1.02,04**  
 > Status: **Stabil & Aman**  
-> Mode: Google Colab (belum modular)
+> Mode: **Google Colab (mobile friendly)**
 
 ---
 
-## 🤝 Pengembangan Lanjutan
+## 🛠️ Pengembangan Selanjutnya (Roadmap)
 
-- [ ] Modularisasi handler & utilitas (v1.03)
-- [ ] UI Colab lebih interaktif
-- [ ] Pemrosesan status progres (upload/download)
-
----
-
-Proyek ini dikelola dan dikembangkan untuk mempermudah pengelolaan file dari URL ke Telegram secara otomatis dan sederhana.
+- [ ] Modularisasi kode (`utils`, `handlers`)
+- [ ] UI status upload/download realtime
+- [ ] Tampilan Colab lebih interaktif dan informatif
