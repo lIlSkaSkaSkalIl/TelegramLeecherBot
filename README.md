@@ -1,4 +1,4 @@
-# 🤖 Telegram Uploader Bot v1.02,02,+01
+# 🤖 Telegram Uploader Bot v1.02,03
 
 Bot Telegram siap dijalankan dari Google Colab dengan konfigurasi aman.
 
