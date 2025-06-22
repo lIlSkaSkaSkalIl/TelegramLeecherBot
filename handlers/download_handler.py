@@ -1,5 +1,6 @@
 import os, requests, time
 from utility.status_format import format_status
+from utility.gdrive_utils import download_gdrive
 
 async def process_link(client, message):
     url = message.text.strip()
@@ -10,23 +11,32 @@ async def process_link(client, message):
     msg = await message.reply("🔄 Menyiapkan download...")
 
     try:
-        filename = url.split("/")[-1].split("?")[0] or "downloaded_file"
-        r = requests.get(url, stream=True, timeout=60)
-        if r.status_code != 200:
-            return await msg.edit("❌ Gagal mengunduh.")
+        if "drive.google.com" in url:
+            await msg.edit("☁️ Mengunduh dari Google Drive...")
+            filename = url.split("/")[-2] + ".file"
+            downloaded_path = download_gdrive(url, filename)
 
-        total = int(r.headers.get("content-length", 0))
-        done, start, last = 0, time.time(), 0
+            if not downloaded_path or not os.path.exists(downloaded_path):
+                return await msg.edit("❌ Gagal mengunduh dari Google Drive.")
 
-        with open(filename, "wb") as f:
-            for chunk in r.iter_content(1024 * 1024):
-                if chunk:
-                    f.write(chunk)
-                    done += len(chunk)
-                    now = time.time()
-                    if now - last > 5 or done == total:
-                        await msg.edit(format_status("📥 Mengunduh", filename, done, total, now - start))
-                        last = now
+        else:
+            filename = url.split("/")[-1].split("?")[0] or "downloaded_file"
+            r = requests.get(url, stream=True, timeout=60)
+            if r.status_code != 200:
+                return await msg.edit("❌ Gagal mengunduh file.")
+
+            total = int(r.headers.get("content-length", 0))
+            done, start, last = 0, time.time(), 0
+
+            with open(filename, "wb") as f:
+                for chunk in r.iter_content(1024 * 1024):
+                    if chunk:
+                        f.write(chunk)
+                        done += len(chunk)
+                        now = time.time()
+                        if now - last > 5 or done == total:
+                            await msg.edit(format_status("📥 Mengunduh", filename, done, total, now - start))
+                            last = now
 
         await msg.edit("📤 Mengunggah ke Telegram...")
         upload_start = time.time()
