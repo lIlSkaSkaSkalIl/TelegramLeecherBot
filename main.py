@@ -3,7 +3,6 @@
 
 from pyrogram import Client, filters
 from pyrogram.types import Message
-import os
 from handlers.gdrive_handler import handle_gdrive
 from handlers.direct_handler import handle_direct
 from handlers.video_handler import handle_drlvideo
@@ -11,8 +10,8 @@ from handlers.gdvideo_handler import handle_gdvideo
 from handlers.link_router import handle_link_input
 from handlers.start_handler import handle_start
 from handlers.help_handler import handle_help
-from config import API_ID, API_HASH, BOT_TOKEN
 
+# Colab-style input langsung (nilai variabel sudah didefinisikan dari atas notebook)
 app = Client("uploader-bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 @app.on_message(filters.command("start"))
