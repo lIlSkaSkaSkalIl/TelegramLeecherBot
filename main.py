@@ -2,19 +2,13 @@
 # Versi langsung jalan - dari link → upload ke chat
 
 # ========================
-# 📥 INPUT KONFIGURASI BOT
-# ========================
-
-API_ID = 123456        # @param {type:"number"}
-API_HASH = "your_api_hash_here"    # @param {type:"string"}
-BOT_TOKEN = "123456:ABC-DEF"       # @param {type:"string"}
-
-# ========================
 # 🚀 START TELEGRAM BOT
 # ========================
 
 from pyrogram import Client, filters
 from pyrogram.types import Message
+from config import API_ID, API_HASH, BOT_TOKEN
+
 from handlers.gdrive_handler import handle_gdrive
 from handlers.direct_handler import handle_direct
 from handlers.video_handler import handle_drlvideo
@@ -54,5 +48,5 @@ async def link_input(client, message: Message):
     await handle_link_input(client, message)
 
 if __name__ == "__main__":
-    print("✅ Bot Telegram Uploader Siap Digunakan!")
+    print("✅ Bot siap berjalan!")
     app.run()
