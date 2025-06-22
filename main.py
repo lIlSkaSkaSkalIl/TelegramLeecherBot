@@ -19,7 +19,7 @@ async def start(client, message):
         "Saya adalah bot pengunggah file.\n\n"
         "Gunakan perintah berikut:\n"
         "📁 `/gd` — untuk mengunggah dari Google Drive\n"
-        "🌐 `/drl` — (segera hadir) untuk direct link\n\n"
+        "🌐 `/drl` — untuk mengunggah dari direct download link\n\n"
         "Kirim salah satu perintah di atas lalu kirimkan linknya.",
         quote=True
     )
