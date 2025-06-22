@@ -1,2 +1,5 @@
 pyrogram
 tgcrypto
+gdown
+requests
+nest_asyncio
