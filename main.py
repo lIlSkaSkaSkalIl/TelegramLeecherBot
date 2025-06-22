@@ -3,8 +3,7 @@
 
 from pyrogram import Client, filters
 from handlers.gdrive_handler import handle_gdrive
-from handlers.direct_handler import handle_direct
-from handlers.default_handler import handle_unknown
+from handlers.link_router import handle_link_input
 import os
 
 API_ID = int(os.environ.get("API_ID"))
@@ -19,21 +18,18 @@ async def start(client, message):
         "👋 Halo!\n\n"
         "Saya adalah bot pengunggah file.\n\n"
         "Gunakan perintah berikut:\n"
-        "📁 `/gd <link>` — untuk Google Drive\n"
-        "🌐 `/drl <link>` — untuk direct link\n"
-        "Ketik link tanpa perintah akan menampilkan daftar perintah."
+        "📁 `/gd` — untuk mengunggah dari Google Drive\n"
+        "🌐 `/drl` — (segera hadir) untuk direct link\n\n"
+        "Kirim salah satu perintah di atas lalu kirimkan linknya.",
+        quote=True
     )
 
 @app.on_message(filters.command("gd"))
 async def gdrive(client, message):
     await handle_gdrive(client, message)
 
-@app.on_message(filters.command("drl"))
-async def direct(client, message):
-    await handle_direct(client, message)
-
 @app.on_message(filters.text & filters.private)
-async def fallback(client, message):
-    await handle_unknown(client, message)
+async def handle_text(client, message):
+    await handle_link_input(client, message)
 
 app.run()
