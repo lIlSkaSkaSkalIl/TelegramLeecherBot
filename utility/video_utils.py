@@ -20,4 +20,5 @@ def convert_to_mp4(input_file: str, output_file: str = "converted_output.mp4"):
         "-movflags", "+faststart",
         output_file
     ]
-    subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(cmd, check=True)
+    
