@@ -1,6 +1,18 @@
 # Telegram Uploader Bot v1.02,06
 # Versi langsung jalan - dari link → upload ke chat
 
+# ========================
+# 📥 INPUT KONFIGURASI BOT
+# ========================
+
+API_ID = 123456        # @param {type:"number"}
+API_HASH = "your_api_hash_here"    # @param {type:"string"}
+BOT_TOKEN = "123456:ABC-DEF"       # @param {type:"string"}
+
+# ========================
+# 🚀 START TELEGRAM BOT
+# ========================
+
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from handlers.gdrive_handler import handle_gdrive
@@ -11,7 +23,6 @@ from handlers.link_router import handle_link_input
 from handlers.start_handler import handle_start
 from handlers.help_handler import handle_help
 
-# Colab-style input langsung (nilai variabel sudah didefinisikan dari atas notebook)
 app = Client("uploader-bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 @app.on_message(filters.command("start"))
@@ -43,5 +54,5 @@ async def link_input(client, message: Message):
     await handle_link_input(client, message)
 
 if __name__ == "__main__":
-    print("Bot is running...")
+    print("✅ Bot Telegram Uploader Siap Digunakan!")
     app.run()
