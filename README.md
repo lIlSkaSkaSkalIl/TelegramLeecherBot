@@ -3,6 +3,8 @@
 Versi: **1.02.06**  
 Bot Telegram untuk mengunduh file dari direct download link (HTTP/HTTPS) dan mengunggahnya kembali ke Telegram (chat pribadi).
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://github.com/lIlSkaSkaSkalIl/TelegramLeecherBot/blob/main/run_bot_colab.ipynb)
+
 ---
 
 ## 🔧 Fitur
