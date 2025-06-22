@@ -1,10 +1,11 @@
-# Telegram Uploader Bot v1.02,02,+01
-# Menarik konfigurasi dari environment (aman untuk publikasi)
+# Telegram Uploader Bot v1.02,05
+# Versi langsung jalan - dari link → upload ke chat
 
 import os
+import requests
+import asyncio
 from pyrogram import Client, filters
 from pyrogram.types import Message
-import asyncio
 
 API_ID = int(os.environ.get("API_ID"))
 API_HASH = os.environ.get("API_HASH")
@@ -14,7 +15,7 @@ app = Client("uploader_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOK
 
 @app.on_message(filters.command("start"))
 async def start(client, message: Message):
-    await message.reply("🤖 Bot aktif! Kirimkan direct link untuk mengunduh dan mengunggah ke Telegram.")
+    await message.reply("🤖 Halo! Kirimkan link direct download ke bot ini, dan aku akan mengunggahnya ke Telegram untukmu.")
 
 @app.on_message(filters.text & filters.private)
 async def handle_link(client, message: Message):
@@ -22,8 +23,27 @@ async def handle_link(client, message: Message):
     if not url.startswith("http"):
         await message.reply("❌ Link tidak valid.")
         return
-    await message.reply("🚀 Sedang mengunduh... (placeholder)")
-    await asyncio.sleep(2)
-    await message.reply_document("sample.txt")  # Simulasi upload
+
+    msg = await message.reply("🚀 Sedang mengunduh file...")
+
+    try:
+        filename = url.split("/")[-1].split("?")[0] or "downloaded_file"
+        response = requests.get(url, stream=True, timeout=60)
+
+        if response.status_code != 200:
+            await msg.edit("❌ Gagal mengunduh file.")
+            return
+
+        with open(filename, "wb") as f:
+            for chunk in response.iter_content(chunk_size=1024*1024):
+                if chunk:
+                    f.write(chunk)
+
+        await msg.edit("📤 Mengunggah ke Telegram...")
+        await message.reply_document(filename)
+        os.remove(filename)
+
+    except Exception as e:
+        await msg.edit(f"⚠️ Terjadi error:\n`{str(e)}`")
 
 app.run()
