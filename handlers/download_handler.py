@@ -13,8 +13,8 @@ async def process_link(client, message):
     try:
         if "drive.google.com" in url:
             await msg.edit("☁️ Mengunduh dari Google Drive...")
-            filename = url.split("/")[-2] + ".file"
-            downloaded_path = download_gdrive(url, filename)
+            downloaded_path = download_gdrive(url)
+            filename = downloaded_path if downloaded_path else "unknown.file"
 
             if not downloaded_path or not os.path.exists(downloaded_path):
                 return await msg.edit("❌ Gagal mengunduh dari Google Drive.")
