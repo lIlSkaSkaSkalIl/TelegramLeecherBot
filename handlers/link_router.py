@@ -14,7 +14,7 @@ async def handle_link_input(client, message):
             "/gd — Google Drive\n"
             "/drl — Direct download link\n"
             "/drlvideo — Video dari direct link\n"
-            "/gdvideo — Video dari Google Drive (jika tersedia)",
+            "/gdvideo — Video dari Google Drive",
             quote=True
         )
 
@@ -27,6 +27,8 @@ async def handle_link_input(client, message):
         await process_direct(client, message, url)
     elif mode == "drlvideo":
         await process_video(client, message, url)
+    elif mode == "gdvideo":
+        await process_gdrive_video(client, message, url)
     else:
         await message.reply("⚠️ Mode tidak dikenali.")
 
@@ -80,7 +82,7 @@ async def process_direct(client, message, url):
     except Exception as e:
         await msg.edit(f"⚠️ Terjadi kesalahan:\n`{e}`")
 
-# === Google Drive Handler ===
+# === Google Drive (Dokumen) ===
 async def process_gdrive(client, message, url):
     msg = await message.reply("☁️ Mengunduh dari Google Drive...")
 
@@ -116,7 +118,7 @@ async def process_gdrive(client, message, url):
 
     os.remove(filename)
 
-# === Direct Video Handler ===
+# === Video from Direct Link ===
 async def process_video(client, message, url):
     filename = url.split("/")[-1].split("?")[0] or "video_input"
     msg = await message.reply("📥 Mengunduh video...")
@@ -134,8 +136,7 @@ async def process_video(client, message, url):
         if not is_video(filename):
             return await msg.edit(
                 "⚠️ File ini bukan video yang bisa diputar.\n"
-                "Pastikan format video seperti .mp4, .mkv, .webm, .ts, atau .m3u8\n"
-                "Jika ingin unggah sebagai dokumen, gunakan `/drl`."
+                "Gunakan `/drl` jika ingin kirim sebagai dokumen."
             )
 
         if not filename.endswith(".mp4"):
@@ -164,3 +165,47 @@ async def process_video(client, message, url):
 
     except Exception as e:
         await msg.edit(f"❌ Gagal memproses video:\n`{e}`")
+
+# === Video from Google Drive ===
+async def process_gdrive_video(client, message, url):
+    msg = await message.reply("📥 Mengunduh video dari Google Drive...")
+    start = time.time()
+
+    downloaded_path = download_gdrive(url)
+    if not downloaded_path or not os.path.exists(downloaded_path):
+        return await msg.edit(
+            "❌ Gagal mengunduh dari Google Drive.\n"
+            "🔗 Pastikan link valid dan file bisa diakses publik."
+        )
+
+    filename = downloaded_path
+    if not is_video(filename):
+        return await msg.edit(
+            "⚠️ File ini bukan video yang bisa diputar.\n"
+            "Gunakan `/gd` untuk unggah sebagai dokumen biasa."
+        )
+
+    if not filename.endswith(".mp4"):
+        await msg.edit("⚙️ Mengonversi video ke format .mp4...")
+        convert_to_mp4(filename)
+        os.remove(downloaded_path)
+        filename = "converted_output.mp4"
+
+    await msg.edit("📤 Mengunggah video ke Telegram...")
+
+    async def progress(current, total):
+        now = time.time()
+        if now - progress.last > 5 or current == total:
+            await msg.edit(f"📤 Mengunggah... {current * 100 // total}%")
+            progress.last = now
+    progress.last = 0
+
+    await client.send_video(
+        chat_id=message.chat.id,
+        video=filename,
+        caption="✅ Video berhasil dikirim 🎬",
+        supports_streaming=True,
+        progress=progress
+    )
+
+    os.remove(filename)
