@@ -2,33 +2,38 @@
 # Versi langsung jalan - dari link → upload ke chat
 
 from pyrogram import Client, filters
-from pyrogram.types import Message
-from handlers.download_handler import process_link
+from handlers.gdrive_handler import handle_gdrive
+from handlers.direct_handler import handle_direct
+from handlers.default_handler import handle_unknown
 import os
 
-# Ambil kredensial dari environment variable (Colab, Replit, atau VPS)
 API_ID = int(os.environ.get("API_ID"))
 API_HASH = os.environ.get("API_HASH")
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
-# Inisialisasi Pyrogram Bot
 app = Client("uploader_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
-# Perintah /start
 @app.on_message(filters.command("start"))
-async def start(client, message: Message):
+async def start(client, message):
     await message.reply(
         "👋 Halo!\n\n"
-        "Saya adalah bot yang dapat mengunduh file dari direct download link dan mengunggahnya kembali ke Telegram.\n\n"
-        "📎 Kirimkan saja link seperti:\n"
-        "`https://example.com/file.zip`\n\n"
-        "Saya akan mengurus sisanya. Selamat mencoba!"
+        "Saya adalah bot pengunggah file.\n\n"
+        "Gunakan perintah berikut:\n"
+        "📁 `/gd <link>` — untuk Google Drive\n"
+        "🌐 `/drl <link>` — untuk direct link\n"
+        "Ketik link tanpa perintah akan menampilkan daftar perintah."
     )
 
-# Handler untuk menerima semua link langsung
-@app.on_message(filters.text & filters.private)
-async def handle_link(client, message: Message):
-    await process_link(client, message)
+@app.on_message(filters.command("gd"))
+async def gdrive(client, message):
+    await handle_gdrive(client, message)
 
-# Jalankan bot
+@app.on_message(filters.command("drl"))
+async def direct(client, message):
+    await handle_direct(client, message)
+
+@app.on_message(filters.text & filters.private)
+async def fallback(client, message):
+    await handle_unknown(client, message)
+
 app.run()
