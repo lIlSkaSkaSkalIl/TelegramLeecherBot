@@ -1,71 +1,71 @@
-# 🤖 Telegram Leecher Bot — Versi 1.02,04
+# 📤 Telegram Uploader Bot
 
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lIlSkaSkaSkalIl/TelegramLeecherBot/blob/main/run_bot_colab.ipynb)
-
-Bot Telegram ini dirancang untuk menerima direct download link (seperti dari Google Drive, MediaFire, Zippyshare, dll), mengunduh file tersebut, dan kemudian mengunggahnya kembali ke Telegram — secara otomatis melalui Google Colab.
-
----
-
-## 🔧 Fitur Utama
-
-- 🔗 Menerima link direct download
-- 📥 Mengunduh file dari internet
-- 📤 Mengunggah ulang file ke chat Telegram secara otomatis
-- 📲 Bisa dijalankan langsung dari **Google Colab** tanpa perlu VPS atau perangkat lokal
-- 🔐 Input token menggunakan form `getpass()` (tidak disimpan di file publik)
+Versi: **1.02.06**  
+Bot Telegram untuk mengunduh file dari direct download link (HTTP/HTTPS) dan mengunggahnya kembali ke Telegram (chat pribadi).
 
 ---
 
-## 🚀 Cara Menjalankan
+## 🔧 Fitur
 
-### 1. Siapkan Bot Telegram
-- Buat bot baru melalui [@BotFather](https://t.me/BotFather)
-- Catat `BOT_TOKEN` yang diberikan
-
-### 2. Ambil API ID dan HASH
-- Kunjungi [my.telegram.org](https://my.telegram.org)
-- Login dan dapatkan `API_ID` dan `API_HASH`
-
-### 3. Jalankan Bot dari Colab
-- Klik tombol **"Open in Colab"** di atas
-- Masukkan:
-  - API ID
-  - API HASH
-  - BOT TOKEN
-- Jalankan semua sel
+- 📥 Unduh dari direct link (misalnya `https://example.com/file.zip`)
+- 📤 Upload otomatis ke Telegram
+- 📊 Status download tampil dengan:
+  - Nama file
+  - Ukuran
+  - Kecepatan
+  - Estimasi waktu selesai (ETA)
+  - Ekstensi
+- 🔄 Status diperbarui setiap 5 detik
+- ✅ Terstruktur dengan refactor:
+  - `main.py` → alur utama
+  - `handlers/download_handler.py` → logika download/upload
+  - `utility/status_format.py` → fungsi status & ETA
 
 ---
 
-## 📁 Struktur Proyek
+## 📁 Struktur Folder
 
 ```
-Telegram_Uploader_Bot/
-├── main.py                # Kode utama bot
-├── requirements.txt       # Dependensi
-├── run_bot_colab.ipynb    # File peluncur dari Google Colab
-└── README.md              # Penjelasan proyek
+TelegramLeecherBot/
+├── main.py
+├── handlers/
+│   ├── __init__.py
+│   └── download_handler.py
+├── utility/
+│   ├── __init__.py
+│   └── status_format.py
+├── requirements.txt
+└── run_bot_colab.ipynb
 ```
 
 ---
 
-## 🔒 Keamanan
+## ▶️ Cara Menjalankan
 
-- Token bot dan API ID tidak disimpan di file
-- Semua data sensitif dimasukkan saat runtime lewat input form
-- Aman untuk digunakan di repo publik
+### 🔹 Google Colab:
+1. Masukkan `API_ID`, `API_HASH`, dan `BOT_TOKEN`
+2. Jalankan sel
+3. Kirim link ke bot via Telegram
+
+### 🔹 VPS / Replit / Lokal:
+```bash
+export API_ID=123456
+export API_HASH=your_api_hash
+export BOT_TOKEN=your_bot_token
+python main.py
+```
 
 ---
 
-## 📌 Versi Saat Ini
+## 💡 Catatan
 
-> Versi: **v1.02,04**  
-> Status: **Stabil & Aman**  
-> Mode: **Google Colab (mobile friendly)**
+- Bot hanya bekerja untuk **direct HTTP/HTTPS links**
+- Tidak mendukung Google Drive, Mega, YouTube (untuk sekarang)
+- Upload maksimal 2GB (batas Telegram Bot API)
 
 ---
 
-## 🛠️ Pengembangan Selanjutnya (Roadmap)
+## 🤝 Kontribusi
 
-- [ ] Modularisasi kode (`utils`, `handlers`)
-- [ ] UI status upload/download realtime
-- [ ] Tampilan Colab lebih interaktif dan informatif
+Struktur disesuaikan dari [@lIlSkaSkaSkalIl/TelegramLeecherBot](https://github.com/lIlSkaSkaSkalIl/TelegramLeecherBot)
+
