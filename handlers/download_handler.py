@@ -19,16 +19,36 @@ async def process_link(client, message):
         done, start, last = 0, time.time(), 0
 
         with open(filename, "wb") as f:
-            for chunk in r.iter_content(1024*1024):
+            for chunk in r.iter_content(1024 * 1024):
                 if chunk:
                     f.write(chunk)
                     done += len(chunk)
-                    if time.time() - last > 5 or done == total:
-                        await msg.edit(format_status("📥 Mengunduh", filename, done, total, time.time() - start))
-                        last = time.time()
+                    now = time.time()
+                    if now - last > 5 or done == total:
+                        await msg.edit(format_status("📥 Mengunduh", filename, done, total, now - start))
+                        last = now
 
         await msg.edit("📤 Mengunggah ke Telegram...")
-        await message.reply_document(filename)
+        upload_start = time.time()
+
+        async def upload_progress(current, total):
+            now = time.time()
+            if now - upload_progress.last_update > 5 or current == total:
+                try:
+                    await msg.edit(format_status("📤 Mengunggah", filename, current, total, now - upload_start))
+                    upload_progress.last_update = now
+                except:
+                    pass
+
+        upload_progress.last_update = 0
+
+        await client.send_document(
+            chat_id=message.chat.id,
+            document=filename,
+            caption="✅ File berhasil diunggah.",
+            progress=upload_progress
+        )
+
         os.remove(filename)
 
     except Exception as e:
