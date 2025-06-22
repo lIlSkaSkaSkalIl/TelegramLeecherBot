@@ -10,7 +10,7 @@ async def handle_link_input(client, message):
     # Jika tidak sedang menunggu link, arahkan ke perintah
     if not state or state.get("step") != "awaiting_link":
         return await message.reply(
-            "❗ Silakan gunakan perintah terlebih dahulu:\n"
+            "❗ Silakan gunakan perintah dibawah ini, untuk menggunakan botnya:\n\n"
             "/gd — untuk Google Drive\n"
             "/drl — untuk direct download link",
             quote=True
