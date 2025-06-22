@@ -28,8 +28,27 @@ async def process_link(client, message):
                         last = time.time()
 
         await msg.edit("📤 Mengunggah ke Telegram...")
-        await message.reply_document(filename)
+        upload_start = time.time()
+        await client.send_document(
+            chat_id=message.chat.id,
+            document=filename,
+            caption="✅ File berhasil diunggah.",
+            progress=upload_progress,
+            progress_args=(msg, filename, os.path.getsize(filename), upload_start)
+        )
         os.remove(filename)
 
     except Exception as e:
         await msg.edit(f"⚠️ Error:\n`{e}`")
+
+def upload_progress(current, total, msg, filename, size, start_time):
+    now = time.time()
+    if now - start_time >= 0 and (current == total or (now - upload_progress.last_edit_time) >= 5):
+        status = format_status("📤 Mengunggah", filename, current, total, now - start_time)
+        try:
+            msg.edit(status)
+        except:
+            pass
+        upload_progress.last_edit_time = now
+
+upload_progress.last_edit_time = 0
