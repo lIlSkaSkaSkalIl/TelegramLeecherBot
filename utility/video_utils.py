@@ -1,37 +1,62 @@
 import subprocess
 import mimetypes
+import json
 import time
 
 def is_video(filename: str) -> bool:
-    """
-    Deteksi apakah file adalah video berdasarkan MIME type.
-    """
     mtype, _ = mimetypes.guess_type(filename)
     return mtype and mtype.startswith("video")
 
-def convert_to_mp4(input_file: str, output_file: str = "converted_output.mp4") -> float:
-    """
-    Konversi video ke MP4 agar bisa diputar di Telegram.
-    - Preset ultrafast agar lebih cepat.
-    - Menampilkan log ffmpeg.
-    - Mengembalikan waktu eksekusi dalam detik.
-    """
-    cmd = [
-        "ffmpeg", "-y", "-i", input_file,
-        "-c:v", "libx264",
-        "-c:a", "aac",
-        "-preset", "ultrafast",
-        "-movflags", "+faststart",
-        output_file
-    ]
+def get_codec_info(filename: str) -> dict:
+    try:
+        result = subprocess.run(
+            ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
+             "stream=codec_name", "-of", "json", filename],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True
+        )
+        video_codec = json.loads(result.stdout)["streams"][0]["codec_name"]
 
-    print(f"🚀 Memulai konversi video: {input_file}")
+        result = subprocess.run(
+            ["ffprobe", "-v", "error", "-select_streams", "a:0", "-show_entries",
+             "stream=codec_name", "-of", "json", filename],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True
+        )
+        audio_codec = json.loads(result.stdout)["streams"][0]["codec_name"]
+
+        return {"video": video_codec, "audio": audio_codec}
+
+    except Exception:
+        return {"video": None, "audio": None}
+
+def smart_convert_to_mp4(input_file: str, output_file: str = "converted_output.mp4") -> float:
+    codec_info = get_codec_info(input_file)
+    is_compatible = (
+        codec_info["video"] == "h264" and
+        codec_info["audio"] == "aac" and
+        input_file.endswith(".mp4")
+    )
+
+    if is_compatible:
+        cmd = ["ffmpeg", "-y", "-i", input_file, "-c", "copy", "-movflags", "+faststart", output_file]
+        print("⚡ Melakukan remux cepat (tanpa encode)...")
+    else:
+        cmd = [
+            "ffmpeg", "-y", "-i", input_file,
+            "-c:v", "libx264",
+            "-c:a", "aac",
+            "-preset", "ultrafast",
+            "-movflags", "+faststart",
+            output_file
+        ]
+        print("🔧 Melakukan re-encode karena codec tidak cocok...")
+
     start = time.time()
-
     subprocess.run(cmd, check=True)
-
     end = time.time()
-    duration = end - start
-    print(f"✅ Konversi selesai dalam {duration:.2f} detik")
 
-    return duration
+    print(f"✅ Konversi selesai dalam {end - start:.2f} detik")
+    return end - start
