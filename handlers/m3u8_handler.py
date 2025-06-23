@@ -2,7 +2,6 @@ import os
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from utility.video_utils import download_m3u8_video
-from utility.status_utils import format_eta
 from utils.state import user_state
 
 @Client.on_message(filters.command("m3u8") & filters.private)
