@@ -118,7 +118,7 @@ async def process_gdrive(client, message, url):
 
     os.remove(filename)
 
-# === Video from Direct Link ===
+# === Direct Video Handler ===
 async def process_video(client, message, url):
     filename = url.split("/")[-1].split("?")[0] or "video_input"
     msg = await message.reply("📥 Mengunduh video...")
@@ -140,12 +140,14 @@ async def process_video(client, message, url):
             )
 
         if not filename.endswith(".mp4"):
-            await msg.edit("⚙️ Mengonversi video ke format .mp4...")
-            convert_to_mp4(filename)
+            await msg.edit("⚙️ Mengonversi video ke format .mp4...\nHarap tunggu sebentar ⏳")
+            convert_time = convert_to_mp4(filename)
             os.remove(filename)
             filename = "converted_output.mp4"
+            await msg.edit(f"✅ Konversi selesai dalam {convert_time:.2f} detik!\n📤 Mengunggah ke Telegram...")
 
-        await msg.edit("📤 Mengunggah video ke Telegram...")
+        else:
+            await msg.edit("📤 Mengunggah video ke Telegram...")
 
         start = time.time()
         async def progress(current, total):
@@ -166,7 +168,7 @@ async def process_video(client, message, url):
     except Exception as e:
         await msg.edit(f"❌ Gagal memproses video:\n`{e}`")
 
-# === Video from Google Drive ===
+# === GDrive Video Handler ===
 async def process_gdrive_video(client, message, url):
     msg = await message.reply("📥 Mengunduh video dari Google Drive...")
     start = time.time()
@@ -186,12 +188,14 @@ async def process_gdrive_video(client, message, url):
         )
 
     if not filename.endswith(".mp4"):
-        await msg.edit("⚙️ Mengonversi video ke format .mp4...")
-        convert_to_mp4(filename)
+        await msg.edit("⚙️ Mengonversi video ke format .mp4...\nHarap tunggu sebentar ⏳")
+        convert_time = convert_to_mp4(filename)
         os.remove(downloaded_path)
         filename = "converted_output.mp4"
+        await msg.edit(f"✅ Konversi selesai dalam {convert_time:.2f} detik!\n📤 Mengunggah ke Telegram...")
 
-    await msg.edit("📤 Mengunggah video ke Telegram...")
+    else:
+        await msg.edit("📤 Mengunggah video ke Telegram...")
 
     async def progress(current, total):
         now = time.time()
