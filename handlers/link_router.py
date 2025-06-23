@@ -3,9 +3,15 @@ from handlers.state_manager import get_state, clear_state
 from utility.status_format import format_status
 from utility.gdrive_utils import download_gdrive
 from utility.video_utils import is_video, smart_convert_to_mp4
+from utils.state import user_state  # ✅ Diperlukan agar tidak bentrok dengan /m3u8
 
 async def handle_link_input(client, message):
     chat_id = message.chat.id
+
+    # ✅ Jangan proses jika user sedang dalam mode /m3u8
+    if user_state.get(chat_id) == "awaiting_m3u8_link":
+        return
+
     state = get_state(chat_id)
 
     if not state or state.get("step") != "awaiting_link":
