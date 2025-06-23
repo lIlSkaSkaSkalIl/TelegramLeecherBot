@@ -16,7 +16,7 @@ def convert_to_mp4(input_file: str, output_file: str = "converted_output.mp4"):
         "ffmpeg", "-y", "-i", input_file,
         "-c:v", "libx264",
         "-c:a", "aac",
-        "-preset", "fast",
+        "-preset", "ultrafast",
         "-movflags", "+faststart",
         output_file
     ]
