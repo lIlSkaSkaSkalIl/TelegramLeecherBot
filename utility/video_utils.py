@@ -1,9 +1,45 @@
+import os
 import subprocess
 import asyncio
 import re
-import os
 import time
 from utility.status_utils import format_status
+
+def is_video(file_path: str) -> bool:
+    video_extensions = ['.mp4', '.mkv', '.webm', '.mov', '.avi']
+    ext = os.path.splitext(file_path)[1].lower()
+    return ext in video_extensions
+
+def smart_convert_to_mp4(input_file: str, output_file: str) -> bool:
+    try:
+        # Cek video codec
+        probe_v = subprocess.run(
+            ["ffprobe", "-v", "error", "-select_streams", "v:0",
+             "-show_entries", "stream=codec_name",
+             "-of", "default=noprint_wrappers=1:nokey=1", input_file],
+            capture_output=True, text=True
+        )
+        video_codec = probe_v.stdout.strip()
+
+        # Cek audio codec
+        probe_a = subprocess.run(
+            ["ffprobe", "-v", "error", "-select_streams", "a:0",
+             "-show_entries", "stream=codec_name",
+             "-of", "default=noprint_wrappers=1:nokey=1", input_file],
+            capture_output=True, text=True
+        )
+        audio_codec = probe_a.stdout.strip()
+
+        if video_codec == "h264" and audio_codec == "aac":
+            cmd = ["ffmpeg", "-i", input_file, "-c", "copy", output_file]
+        else:
+            cmd = ["ffmpeg", "-i", input_file, "-c:v", "libx264", "-c:a", "aac", output_file]
+
+        subprocess.run(cmd, check=True)
+        return True
+    except Exception as e:
+        print(f"Konversi gagal: {e}")
+        return False
 
 async def download_m3u8_video(url, output_path, status_message, client):
     try:
