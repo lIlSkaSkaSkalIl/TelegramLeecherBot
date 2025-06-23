@@ -1,62 +1,50 @@
 import subprocess
-import mimetypes
-import json
-import time
+import asyncio
+import re
+from utility.status_utils import format_eta
 
-def is_video(filename: str) -> bool:
-    mtype, _ = mimetypes.guess_type(filename)
-    return mtype and mtype.startswith("video")
-
-def get_codec_info(filename: str) -> dict:
+async def download_m3u8_video(url, output_path, status_message, client):
     try:
-        result = subprocess.run(
-            ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
-             "stream=codec_name", "-of", "json", filename],
-            stdout=subprocess.PIPE,
+        process = await asyncio.create_subprocess_exec(
+            "ffmpeg", "-i", url, "-c", "copy", "-bsf:a", "aac_adtstoasc", output_path,
+            stdout=subprocess.DEVNULL,
             stderr=subprocess.PIPE,
-            check=True
+            text=True
         )
-        video_codec = json.loads(result.stdout)["streams"][0]["codec_name"]
 
-        result = subprocess.run(
-            ["ffprobe", "-v", "error", "-select_streams", "a:0", "-show_entries",
-             "stream=codec_name", "-of", "json", filename],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=True
-        )
-        audio_codec = json.loads(result.stdout)["streams"][0]["codec_name"]
+        duration = None
+        last_update = 0
 
-        return {"video": video_codec, "audio": audio_codec}
+        while True:
+            line = await process.stderr.readline()
+            if not line:
+                break
 
-    except Exception:
-        return {"video": None, "audio": None}
+            if "Duration" in line and duration is None:
+                match = re.search(r"Duration: (\d+):(\d+):(\d+.\d+)", line)
+                if match:
+                    h, m, s = map(float, match.groups())
+                    duration = h * 3600 + m * 60 + s
 
-def smart_convert_to_mp4(input_file: str, output_file: str = "converted_output.mp4") -> float:
-    codec_info = get_codec_info(input_file)
-    is_compatible = (
-        codec_info["video"] == "h264" and
-        codec_info["audio"] == "aac" and
-        input_file.endswith(".mp4")
-    )
+            if "time=" in line:
+                match = re.search(r"time=(\d+):(\d+):(\d+.\d+)", line)
+                if match:
+                    h, m, s = map(float, match.groups())
+                    current = h * 3600 + m * 60 + s
 
-    if is_compatible:
-        cmd = ["ffmpeg", "-y", "-i", input_file, "-c", "copy", "-movflags", "+faststart", output_file]
-        print("⚡ Melakukan remux cepat (tanpa encode)...")
-    else:
-        cmd = [
-            "ffmpeg", "-y", "-i", input_file,
-            "-c:v", "libx264",
-            "-c:a", "aac",
-            "-preset", "ultrafast",
-            "-movflags", "+faststart",
-            output_file
-        ]
-        print("🔧 Melakukan re-encode karena codec tidak cocok...")
+                    if duration:
+                        percent = (current / duration) * 100
+                        eta = format_eta(duration - current)
+                        now = asyncio.get_event_loop().time()
+                        if now - last_update > 5:
+                            await status_message.edit_text(
+                                f"📥 Downloading: `{percent:.2f}%`\n⏳ ETA: `{eta}`"
+                            )
+                            last_update = now
 
-    start = time.time()
-    subprocess.run(cmd, check=True)
-    end = time.time()
+        await process.wait()
+        return process.returncode == 0
 
-    print(f"✅ Konversi selesai dalam {end - start:.2f} detik")
-    return end - start
+    except Exception as e:
+        await status_message.edit(f"❌ Error: {str(e)}")
+        return False
