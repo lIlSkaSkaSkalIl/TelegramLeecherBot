@@ -2,7 +2,7 @@ import os, time, requests
 from handlers.state_manager import get_state, clear_state
 from utility.status_format import format_status
 from utility.gdrive_utils import download_gdrive
-from utility.video_utils import is_video, convert_to_mp4
+from utility.video_utils import is_video, smart_convert_to_mp4
 
 async def handle_link_input(client, message):
     chat_id = message.chat.id
@@ -139,15 +139,13 @@ async def process_video(client, message, url):
                 "Gunakan `/drl` jika ingin kirim sebagai dokumen."
             )
 
-        if not filename.endswith(".mp4"):
-            await msg.edit("⚙️ Mengonversi video ke format .mp4...\nHarap tunggu sebentar ⏳")
-            convert_time = convert_to_mp4(filename)
+        await msg.edit("⚙️ Memeriksa codec dan mengonversi jika diperlukan...\n⏳ Harap tunggu...")
+        convert_time = smart_convert_to_mp4(filename)
+        if filename != "converted_output.mp4":
             os.remove(filename)
-            filename = "converted_output.mp4"
-            await msg.edit(f"✅ Konversi selesai dalam {convert_time:.2f} detik!\n📤 Mengunggah ke Telegram...")
+        filename = "converted_output.mp4"
 
-        else:
-            await msg.edit("📤 Mengunggah video ke Telegram...")
+        await msg.edit(f"✅ Selesai dalam {convert_time:.2f} detik!\n📤 Mengunggah ke Telegram...")
 
         start = time.time()
         async def progress(current, total):
@@ -187,15 +185,13 @@ async def process_gdrive_video(client, message, url):
             "Gunakan `/gd` untuk unggah sebagai dokumen biasa."
         )
 
-    if not filename.endswith(".mp4"):
-        await msg.edit("⚙️ Mengonversi video ke format .mp4...\nHarap tunggu sebentar ⏳")
-        convert_time = convert_to_mp4(filename)
-        os.remove(downloaded_path)
-        filename = "converted_output.mp4"
-        await msg.edit(f"✅ Konversi selesai dalam {convert_time:.2f} detik!\n📤 Mengunggah ke Telegram...")
+    await msg.edit("⚙️ Memeriksa codec dan mengonversi jika diperlukan...\n⏳ Harap tunggu...")
+    convert_time = smart_convert_to_mp4(filename)
+    if filename != "converted_output.mp4":
+        os.remove(filename)
+    filename = "converted_output.mp4"
 
-    else:
-        await msg.edit("📤 Mengunggah video ke Telegram...")
+    await msg.edit(f"✅ Selesai dalam {convert_time:.2f} detik!\n📤 Mengunggah video ke Telegram...")
 
     async def progress(current, total):
         now = time.time()
