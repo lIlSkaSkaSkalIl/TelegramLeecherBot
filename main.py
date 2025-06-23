@@ -16,6 +16,7 @@ from handlers.gdvideo_handler import handle_gdvideo
 from handlers.link_router import handle_link_input
 from handlers.start_handler import handle_start
 from handlers.help_handler import handle_help
+from handlers import m3u8_handler
 
 app = Client("uploader-bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
